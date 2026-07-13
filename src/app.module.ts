@@ -1,0 +1,47 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
+import configuration from './config/configuration';
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { AIModule } from './ai/ai.module';
+import { StorageModule } from './storage/storage.module';
+import { JobsModule } from './jobs/jobs.module';
+import { GenerationsModule } from './generations/generations.module';
+import { HistoryModule } from './history/history.module';
+import { AdminModule } from './admin/admin.module';
+
+@Module({
+  imports: [
+    // Load config globally
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+    
+    // Setup connection for BullMQ processors and queues
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('redis.host'),
+          port: configService.get<number>('redis.port'),
+        },
+      }),
+    }),
+    
+    // Core and Feature modules
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    AIModule,
+    StorageModule,
+    JobsModule,
+    GenerationsModule,
+    HistoryModule,
+    AdminModule,
+  ],
+})
+export class AppModule {}

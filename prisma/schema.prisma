@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum GenerationType {
+  IMAGE
+  VIDEO
+}
+
+enum GenerationStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id               String       @id @default(uuid())
+  name             String
+  email            String       @unique
+  passwordHash     String
+  role             Role         @default(USER)
+  refreshTokenHash String?      // For storing hashed refresh tokens securely
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  generations      Generation[]
+
+  @@map("users")
+}
+
+model Generation {
+  id           String           @id @default(uuid())
+  userId       String
+  type         GenerationType
+  prompt       String
+  status       GenerationStatus @default(QUEUED)
+  model        String
+  mediaUrl     String?
+  thumbnailUrl String?
+  errorMessage String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs         Job[]
+
+  @@map("generations")
+}
+
+model Job {
+  id            String     @id @default(uuid())
+  generationId  String
+  providerJobId String?
+  provider      String
+  status        String     // To store custom string status or enum values like QUEUED/PROCESSING/COMPLETED/FAILED
+  retries       Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  generation    Generation @relation(fields: [generationId], references: [id], onDelete: Cascade)
+
+  @@map("jobs")
+}
