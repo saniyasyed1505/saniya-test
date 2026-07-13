@@ -6,10 +6,10 @@ export class CreateGenerationDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3, { message: 'Prompt must be at least 3 characters long' })
-  prompt: string;
+  prompt!: string;
 
   @ApiProperty({ example: 'dall-e-3' })
   @IsString()
   @IsNotEmpty()
-  model: string;
+  model!: string;
 }

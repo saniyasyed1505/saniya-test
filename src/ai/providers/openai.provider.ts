@@ -73,6 +73,7 @@ export class OpenAIProvider implements AIProvider {
 
   async checkStatus(providerJobId: string): Promise<AICheckStatusResult> {
     return {
+      providerJobId,
       status: 'COMPLETED',
       mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-background-1611-large.mp4',
     };

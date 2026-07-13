@@ -6,7 +6,7 @@ import { OpenAIProvider } from './providers/openai.provider';
 
 @Injectable()
 export class AIService implements OnModuleInit {
-  private provider: AIProvider;
+  private provider!: AIProvider;
   private readonly logger = new Logger(AIService.name);
 
   constructor(private configService: ConfigService) {}

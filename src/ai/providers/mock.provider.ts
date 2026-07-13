@@ -30,11 +30,13 @@ export class MockAIProvider implements AIProvider {
 
     if (providerJobId.includes('img')) {
       return {
+        providerJobId,
         status: 'COMPLETED',
         mediaUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1024&q=80',
       };
     } else {
       return {
+        providerJobId,
         status: 'COMPLETED',
         mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-background-1611-large.mp4',
       };

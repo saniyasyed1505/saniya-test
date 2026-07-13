@@ -6,7 +6,7 @@ import { S3StorageAdapter } from './adapters/s3.adapter';
 
 @Injectable()
 export class StorageService implements OnModuleInit {
-  private adapter: StorageAdapter;
+  private adapter!: StorageAdapter;
   private readonly logger = new Logger(StorageService.name);
 
   constructor(private configService: ConfigService) {}

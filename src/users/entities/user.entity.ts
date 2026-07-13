@@ -3,22 +3,22 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UserEntity {
   @ApiProperty({ example: '11a7c06c-8cd2-430c-ab22-263303666b37' })
-  id: string;
+  id!: string;
 
   @ApiProperty({ example: 'John Doe' })
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 'john@example.com' })
-  email: string;
+  email!: string;
 
   @ApiProperty({ enum: Role, example: Role.USER })
-  role: Role;
+  role!: Role;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);

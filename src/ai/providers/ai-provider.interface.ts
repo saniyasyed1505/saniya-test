@@ -6,6 +6,7 @@ export interface AIProviderResult {
 }
 
 export interface AICheckStatusResult {
+  providerJobId: string;
   status: 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
   mediaUrl?: string;
   error?: string;

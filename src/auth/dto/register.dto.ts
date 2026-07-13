@@ -6,18 +6,18 @@ export class RegisterDto {
   @ApiProperty({ example: 'john@example.com' })
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @ApiProperty({ example: 'password123', minLength: 6 })
   @IsString()
   @IsNotEmpty()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
-  password: string;
+  password!: string;
 
   @ApiProperty({ example: 'John Doe' })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @ApiProperty({ enum: Role, required: false, default: Role.USER })
   @IsOptional()
