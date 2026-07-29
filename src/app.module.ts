@@ -11,6 +11,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { GenerationsModule } from './generations/generations.module';
 import { HistoryModule } from './history/history.module';
 import { AdminModule } from './admin/admin.module';
+import { ShareModule } from './share/share.module';
 
 @Module({
   imports: [
@@ -20,18 +21,7 @@ import { AdminModule } from './admin/admin.module';
       load: [configuration],
     }),
     
-    // Setup connection for BullMQ processors and queues
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get<string>('redis.host'),
-          port: configService.get<number>('redis.port'),
-        },
-      }),
-    }),
-    
+    // Setup connection for BullMQ processors and queues (REMOVED REDIS DEPENDENCY)
     // Core and Feature modules
     PrismaModule,
     AuthModule,
@@ -42,6 +32,7 @@ import { AdminModule } from './admin/admin.module';
     GenerationsModule,
     HistoryModule,
     AdminModule,
+    ShareModule,
   ],
 })
 export class AppModule {}

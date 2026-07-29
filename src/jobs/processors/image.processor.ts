@@ -1,26 +1,21 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AIService } from '../../ai/ai.service';
 import { StorageService } from '../../storage/storage.service';
-import { Logger } from '@nestjs/common';
 import { GenerationStatus } from '@prisma/client';
 
-@Processor('image-generation')
-export class ImageProcessor extends WorkerHost {
+@Injectable()
+export class ImageProcessor {
   private readonly logger = new Logger(ImageProcessor.name);
 
   constructor(
     private prisma: PrismaService,
     private aiService: AIService,
     private storageService: StorageService,
-  ) {
-    super();
-  }
+  ) {}
 
-  async process(job: Job<{ generationId: string }>): Promise<any> {
-    const { generationId } = job.data;
-    this.logger.log(`Processing image-generation job ${job.id} for generation ID: ${generationId}`);
+  async process(generationId: string): Promise<any> {
+    this.logger.log(`Processing image-generation job for generation ID: ${generationId}`);
 
     const generation = await this.prisma.generation.findUnique({
       where: { id: generationId },
@@ -37,7 +32,7 @@ export class ImageProcessor extends WorkerHost {
         generationId,
         provider: 'unknown',
         status: 'PROCESSING',
-        retries: job.attemptsMade,
+        retries: 0,
       },
     });
 
@@ -112,8 +107,21 @@ export class ImageProcessor extends WorkerHost {
       this.logger.log(`Successfully completed image generation ${generationId}. URL: ${finalUrl}`);
       return { success: true, mediaUrl: finalUrl };
     } catch (error: any) {
-      const errMsg = error.message || 'Unknown processing error';
-      this.logger.error(`Failed to process image generation job ${job.id} for generation ID ${generationId}: ${errMsg}`, error.stack);
+      let errMsg = error.message || 'Unknown processing error';
+      let errorCategory = 'UNKNOWN_ERROR';
+      
+      if (errMsg.includes('timed out')) {
+        errorCategory = 'TIMEOUT';
+      } else if (errMsg.includes('Replicate API error: 429') || errMsg.includes('Too Many Requests')) {
+        errorCategory = 'RATE_LIMIT';
+      } else if (errMsg.includes('fetch failed') || errMsg.includes('ECONNREFUSED') || errMsg.includes('Failed to download')) {
+        errorCategory = 'NETWORK_ERROR';
+      } else if (errMsg.includes('Replicate API error') || errMsg.includes('AI provider')) {
+        errorCategory = 'API_ERROR';
+      }
+
+      const finalErrMsg = `${errorCategory}: ${errMsg}`;
+      this.logger.error(`Failed to process image generation job for generation ID ${generationId}: ${finalErrMsg}`, error.stack);
 
       // Update DB state to FAILED
       await this.prisma.generation.update({
@@ -128,7 +136,7 @@ export class ImageProcessor extends WorkerHost {
         where: { id: dbJob.id },
         data: {
           status: 'FAILED',
-          retries: job.attemptsMade + 1,
+          retries: 1,
         },
       });
 

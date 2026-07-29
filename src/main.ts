@@ -16,6 +16,7 @@ async function bootstrap() {
   // 1. Security Config (Helmet & CORS)
   app.use(helmet({
     contentSecurityPolicy: false, // Turn off CSP if you need to browse Swagger documentation easily
+    crossOriginResourcePolicy: false, // Allow frontend to load images cross-origin
   }));
   app.enableCors();
 

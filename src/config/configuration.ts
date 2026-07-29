@@ -6,7 +6,7 @@ export default () => ({
   jwt: {
     secret: process.env.JWT_SECRET || 'super-secret-access-token-key-change-in-production',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'super-secret-refresh-token-key-change-in-production',
-    accessExpiration: '15m',
+    accessExpiration: '7d',
     refreshExpiration: '7d',
   },
   redis: {

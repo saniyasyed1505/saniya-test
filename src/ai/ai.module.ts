@@ -8,3 +8,4 @@ import { ConfigModule } from '@nestjs/config';
   exports: [AIService],
 })
 export class AIModule {}
+

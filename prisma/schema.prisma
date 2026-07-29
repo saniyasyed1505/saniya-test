@@ -15,6 +15,7 @@ enum Role {
 enum GenerationType {
   IMAGE
   VIDEO
+  MEME
 }
 
 enum GenerationStatus {
@@ -43,11 +44,28 @@ model Generation {
   userId       String
   type         GenerationType
   prompt       String
+  negativePrompt String?
+  seed         Int?
+  aspectRatio  String?
+  quality      String?
+  style        String?
+  duration     Int?
+  cameraMotion String?
+  steps        Int?
+  cfgScale     Float?
+  scheduler    String?
+  retryCount   Int              @default(0)
+  parentGenerationId String?
   status       GenerationStatus @default(QUEUED)
   model        String
   mediaUrl     String?
   thumbnailUrl String?
   errorMessage String?
+  memeData     Json?            // Stores the structured meme response
+  isFavorite   Boolean          @default(false)
+  downloads    Int              @default(0)
+  shares       Int              @default(0)
+  views        Int              @default(0)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)

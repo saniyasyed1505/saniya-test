@@ -15,5 +15,6 @@ export interface AICheckStatusResult {
 export interface AIProvider {
   generateImage(prompt: string, model: string): Promise<AIProviderResult>;
   generateVideo(prompt: string, model: string): Promise<AIProviderResult>;
+  generateGif?(prompt: string, model: string): Promise<AIProviderResult>;
   checkStatus(providerJobId: string): Promise<AICheckStatusResult>;
 }
