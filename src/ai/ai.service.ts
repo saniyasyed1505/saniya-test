@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AIProvider, AIProviderResult, AICheckStatusResult } from './providers/ai-provider.interface';
 import { PollinationsProvider } from './providers/pollinations.provider';
+import { ReplicateProvider } from './providers/replicate.provider';
 
 @Injectable()
 export class AIService implements OnModuleInit {
@@ -11,8 +12,14 @@ export class AIService implements OnModuleInit {
   constructor(private configService: ConfigService) {}
 
   onModuleInit() {
-    this.logger.log('Initializing AIService with Pollinations.ai provider');
-    this.provider = new PollinationsProvider();
+    const replicateKey = process.env.REPLICATE_API_TOKEN;
+    if (replicateKey) {
+      this.logger.log('Initializing AIService with premium Replicate provider (Flux-1.1-Pro) for EXACT celebrity likeness');
+      this.provider = new ReplicateProvider();
+    } else {
+      this.logger.log('Initializing AIService with free Pollinations.ai provider');
+      this.provider = new PollinationsProvider();
+    }
   }
 
   async generateImage(prompt: string, model: string): Promise<AIProviderResult> {
