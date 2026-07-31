@@ -7,8 +7,8 @@ export class PollinationsProvider implements AIProvider {
   async generateImage(prompt: string, model: string): Promise<AIProviderResult> {
     this.logger.log(`Pollinations: Generating image for prompt: "${prompt}" using ${model}`);
     
-    // Fallback to flux if model not specified or if it's the old replicate model
-    const targetModel = (model && model !== 'replicate-stable-diffusion') ? model : 'flux';
+    // Fallback to turbo which has better celebrity likeness than flux
+    const targetModel = (model && model !== 'replicate-stable-diffusion') ? model : 'turbo';
     const seed = Math.floor(Math.random() * 100000);
     const mediaUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${targetModel}&seed=${seed}&nologo=true`;
 
@@ -32,7 +32,6 @@ export class PollinationsProvider implements AIProvider {
   private async createZoomPanVideo(prompt: string, durationSeconds: number, type: string): Promise<AIProviderResult> {
     const fs = require('fs');
     const path = require('path');
-    const fetch = require('node-fetch');
     const ffmpeg = require('fluent-ffmpeg');
     const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
     ffmpeg.setFfmpegPath(ffmpegInstaller.path);
@@ -49,11 +48,12 @@ export class PollinationsProvider implements AIProvider {
 
     try {
       this.logger.log(`1. Generating highly accurate Image from Pollinations...`);
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
+      // Use turbo for videos as well for better celebrity likeness
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?nologo=true&model=turbo&seed=${Math.floor(Math.random() * 100000)}`;
       
-      const res = await fetch(imageUrl);
-      const buffer = await res.buffer();
-      fs.writeFileSync(tempImagePath, buffer);
+      const res = await globalThis.fetch(imageUrl);
+      const arrayBuffer = await res.arrayBuffer();
+      fs.writeFileSync(tempImagePath, Buffer.from(arrayBuffer));
 
       this.logger.log(`2. Animating Image with smooth Zoom/Pan (Glitch-free)...`);
       
