@@ -7,8 +7,10 @@ export class PollinationsProvider implements AIProvider {
   async generateImage(prompt: string, model: string): Promise<AIProviderResult> {
     this.logger.log(`Pollinations: Generating image for prompt: "${prompt}" using ${model}`);
     
-    // Fallback to turbo which has better celebrity likeness than flux
-    const targetModel = (model && model !== 'replicate-stable-diffusion') ? model : 'turbo';
+    // Force turbo because FLUX models (default on most free APIs) are heavily 
+    // aligned to block exact celebrity likenesses (to prevent deepfakes). 
+    // SDXL Turbo is much less censored for celebrities.
+    const targetModel = 'turbo';
     const seed = Math.floor(Math.random() * 100000);
     const mediaUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${targetModel}&seed=${seed}&nologo=true`;
 

@@ -2,7 +2,6 @@ import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AIProvider, AIProviderResult, AICheckStatusResult } from './providers/ai-provider.interface';
 import { PollinationsProvider } from './providers/pollinations.provider';
-import { ReplicateProvider } from './providers/replicate.provider';
 
 @Injectable()
 export class AIService implements OnModuleInit {
@@ -12,18 +11,16 @@ export class AIService implements OnModuleInit {
   constructor(private configService: ConfigService) {}
 
   onModuleInit() {
-    const replicateKey = process.env.REPLICATE_API_TOKEN;
-    if (replicateKey) {
-      this.logger.log('Initializing AIService with premium Replicate provider (Flux-1.1-Pro) for EXACT celebrity likeness');
-      this.provider = new ReplicateProvider();
-    } else {
-      this.logger.log('Initializing AIService with free Pollinations.ai provider');
-      this.provider = new PollinationsProvider();
-    }
+    this.logger.log('Initializing AIService with Pollinations.ai');
+    this.provider = new PollinationsProvider();
   }
 
   async generateImage(prompt: string, model: string): Promise<AIProviderResult> {
-    return this.provider.generateImage(prompt, model);
+    // Ignore whatever model the frontend sends and FORCE 'turbo' 
+    // because FLUX models (like flux and flux-pro) have strict safety filters 
+    // that deliberately scramble celebrity faces to prevent deepfakes.
+    const targetModel = 'turbo';
+    return this.provider.generateImage(prompt, targetModel);
   }
 
   async generateVideo(prompt: string, model: string): Promise<AIProviderResult> {
