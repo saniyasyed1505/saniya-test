@@ -40,9 +40,9 @@ export default function Generate() {
     setLoading(true);
     try {
       if (type === 'IMAGE') {
-        await api.post('/generate/image', { prompt, model: 'flux' });
+        await api.post('/generate/image', { prompt, model: 'turbo' });
       } else if (type === 'VIDEO') {
-        await api.post('/generate/video', { prompt, model: 'p-video-720p' });
+        await api.post('/generate/video', { prompt, model: 'turbo' });
       } else {
         await api.post('/generate/meme', { prompt, mode, template: template || undefined });
       }
